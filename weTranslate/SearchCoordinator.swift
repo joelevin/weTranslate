@@ -36,7 +36,9 @@ extension SearchCoordinator: SearchViewControllerDelegate {
         client.translate(word: word, from: fromLanguage, to: toLanguage) { translation in
             if let translation = translation {
                 let searchViewModel = SearchViewModel(translation: translation)
-                searchViewController.viewModel = searchViewModel
+                searchViewController.state = .Result(searchViewModel)
+            } else {
+                searchViewController.state = .NoResult
             }
         }
     }

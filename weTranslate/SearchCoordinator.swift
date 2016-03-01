@@ -33,12 +33,18 @@ final class SearchCoordinator: CoordinatorType {
 
 extension SearchCoordinator: SearchViewControllerDelegate {
     func searchViewController(searchViewController: SearchViewController, didSearchWord word: String, fromLanguage: Language, toLanguage: Language) {
-        client.translate(word: word, from: fromLanguage, to: toLanguage) { translation in
-            if let translation = translation {
-                let searchViewModel = SearchViewModel(translation: translation)
-                searchViewController.state = .Result(searchViewModel)
-            } else {
-                searchViewController.state = .NoResult
+        client.translate(word: word, from: fromLanguage, to: toLanguage) { result in
+            switch result {
+            case .Success(let translation):
+                if let translation = translation {
+                    let translationViewModel = TranslationViewModel(translation: translation)
+                    searchViewController.state = .Result(translationViewModel)
+                } else {
+                    let noResultViewModel = NoResultViewModel(word: word, fromLanguage: fromLanguage, toLanguage: toLanguage)
+                    searchViewController.state = .NoResult(noResultViewModel)
+                }
+            case .Failure:
+                searchViewController.state = .Error
             }
         }
     }
